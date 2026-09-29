@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 <#
 NextStep VA - BYOD Device & Security Compliance Assessment
 Purpose: Internal device security/readiness verification for BYOD onboarding.
@@ -16,7 +16,7 @@ $ErrorActionPreference = "SilentlyContinue"
 # BASIC HELPERS
 # ------------------------------------------------------------
 
-function H([object]$Value) {
+function HtmlEncode([object]$Value) {
     if ($null -eq $Value) { return "" }
     return [System.Net.WebUtility]::HtmlEncode([string]$Value)
 }
@@ -510,12 +510,12 @@ $html = @"
         --line: #d9e1ea;
         --text: #1b2430;
         --muted: #5f6b78;
-        --pass-bg: #dff7f5;
-        --pass-fg: #086b73;
+        --pass-bg: #e8f7ee;
+        --pass-fg: #176b37;
         --fail-bg: #fdecec;
         --fail-fg: #a12626;
-        --review-bg: #eaf4ff;
-        --review-fg: #1fa6da;
+        --review-bg: #fff4d8;
+        --review-fg: #8a5a00;
         --info-bg: #edf2f7;
         --info-fg: #425466;
     }
