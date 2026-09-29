@@ -491,6 +491,16 @@ $ReportName = "${SafeEmployeeID}_NextStepVA_Device_Compliance_${Timestamp}.html"
 $ReportPath = Join-Path $Downloads $ReportName
 
 # ------------------------------------------------------------
+# DATA VALIDATION BEFORE REPORT
+# ------------------------------------------------------------
+Write-Host "Collected Device Data:"
+Write-Host "Computer: $ComputerName"
+Write-Host "Manufacturer: $Manufacturer"
+Write-Host "Model: $Model"
+Write-Host "OS: $OSCaption"
+Write-Host "RAM: $RamGB GB"
+
+# ------------------------------------------------------------
 # HTML REPORT
 # ------------------------------------------------------------
 
@@ -819,8 +829,6 @@ $html = @"
 
 # Production rendering safeguard
 # Replace empty HTML value cells with a visible status.
-$html = $html -replace '<td class="value"></td>', '<td class="value">NOT DETECTED</td>'
-
 $html | Out-File -FilePath $ReportPath -Encoding UTF8 -Force
 
 Write-Host ""
