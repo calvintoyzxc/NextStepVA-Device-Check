@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 NextStep VA - BYOD Device & Security Compliance Assessment
 Purpose: Internal device security/readiness verification for BYOD onboarding.
@@ -10,7 +10,7 @@ IMPORTANT:
 - Some checks require Administrator privileges for the most accurate result.
 #>
 
-$ErrorActionPreference = "Continue"
+$ErrorActionPreference = "SilentlyContinue"
 
 # ------------------------------------------------------------
 # BASIC HELPERS
@@ -32,7 +32,7 @@ function StatusClass([string]$Status) {
 
 function StatusHtml([string]$Status) {
     $c = StatusClass $Status
-    return "<span class='status $c'>$(H $Status)</span>"
+    return "<span class='status $c'>$(HtmlEncode $Status)</span>"
 }
 
 function SafeDate([object]$DateValue) {
@@ -490,21 +490,6 @@ $Timestamp = Get-Date -Format "yyyy-MM-dd_HHmm"
 $ReportName = "${SafeEmployeeID}_NextStepVA_Device_Compliance_${Timestamp}.html"
 $ReportPath = Join-Path $Downloads $ReportName
 
-
-# Production data safety refresh
-try {
-    $refreshCS = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
-    if ([string]::IsNullOrWhiteSpace([string]$Manufacturer)) { $Manufacturer = $refreshCS.Manufacturer }
-    if ([string]::IsNullOrWhiteSpace([string]$Model)) { $Model = $refreshCS.Model }
-    if ([string]::IsNullOrWhiteSpace([string]$ComputerName)) { $ComputerName = $env:COMPUTERNAME }
-} catch {}
-try {
-    $refreshOS = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
-    if ([string]::IsNullOrWhiteSpace([string]$OSCaption)) { $OSCaption = $refreshOS.Caption }
-    if ([string]::IsNullOrWhiteSpace([string]$OSVersion)) { $OSVersion = $refreshOS.Version }
-    if ([string]::IsNullOrWhiteSpace([string]$OSBuild)) { $OSBuild = $refreshOS.BuildNumber }
-} catch {}
-
 # ------------------------------------------------------------
 # HTML REPORT
 # ------------------------------------------------------------
@@ -527,9 +512,9 @@ $html = @"
         --muted: #5f6b78;
         --pass-bg: #dff7f5;
         --pass-fg: #086b73;
-        --fail-bg: #eaf4ff;
-        --fail-fg: #183b7a;
-        --review-bg: #e6f7ff;
+        --fail-bg: #fdecec;
+        --fail-fg: #a12626;
+        --review-bg: #eaf4ff;
         --review-fg: #1fa6da;
         --info-bg: #edf2f7;
         --info-fg: #425466;
@@ -709,10 +694,10 @@ $html = @"
     </div>
 
     <div class="meta">
-        <strong>Generated:</strong> $(H ($GeneratedDate.ToString("yyyy-MM-dd HH:mm:ss")))<br>
-        <strong>Employee ID:</strong> $(H $EmployeeID)<br>
-        <strong>Device ID:</strong> $(H $DeviceID)<br>
-        <strong>Administrator session:</strong> $(H $AdminStatus)
+        <strong>Generated:</strong> $(HtmlEncode ($GeneratedDate.ToString("yyyy-MM-dd HH:mm:ss")))<br>
+        <strong>Employee ID:</strong> $(HtmlEncode $EmployeeID)<br>
+        <strong>Device ID:</strong> $(HtmlEncode $DeviceID)<br>
+        <strong>Administrator session:</strong> $(HtmlEncode $AdminStatus)
     </div>
 
     <div class="notice">
@@ -722,62 +707,62 @@ $html = @"
     <div class="section">
         <div class="section-title">User / Account Summary</div>
         <table>
-            <tr><td class="label">Current Windows Account</td><td class="value">$(H $CurrentWindowsUser)</td></tr>
-            <tr><td class="label">Local Windows Accounts</td><td class="value">Count: $(H $LocalUserCount) &mdash; account names intentionally not collected</td></tr>
+            <tr><td class="label">Current Windows Account</td><td class="value">$(HtmlEncode $CurrentWindowsUser)</td></tr>
+            <tr><td class="label">Local Windows Accounts</td><td class="value">Count: $(HtmlEncode $LocalUserCount) &mdash; account names intentionally not collected</td></tr>
         </table>
     </div>
 
     <div class="section">
         <div class="section-title">Hardware Configuration</div>
         <table>
-            <tr><td class="label">Computer Name</td><td class="value">$(H $ComputerName)</td></tr>
-            <tr><td class="label">Manufacturer</td><td class="value">$(H $Manufacturer)</td></tr>
-            <tr><td class="label">Model</td><td class="value">$(H $Model)</td></tr>
-            <tr><td class="label">System Type</td><td class="value">$(H $SystemType)</td></tr>
-            <tr><td class="label">Processor</td><td class="value">$(H $Processor)</td></tr>
-            <tr><td class="label">CPU Cores / Logical Processors</td><td class="value">$(H $CpuCores) / $(H $CpuLogical)</td></tr>
-            <tr><td class="label">Memory (RAM)</td><td class="value">$(H "$RamGB GB") $(StatusHtml $RamStatus) &nbsp; Minimum: 8 GB</td></tr>
-            <tr><td class="label">Storage (C:)</td><td class="value">Total: $(H "$StorageTotalGB GB") &nbsp; | &nbsp; Free: $(H "$StorageFreeGB GB")</td></tr>
-            <tr><td class="label">BIOS Version</td><td class="value">$(H $BiosVersion)</td></tr>
-            <tr><td class="label">Baseboard</td><td class="value">$(H $BaseBoardModel)</td></tr>
+            <tr><td class="label">Computer Name</td><td class="value">$(HtmlEncode $ComputerName)</td></tr>
+            <tr><td class="label">Manufacturer</td><td class="value">$(HtmlEncode $Manufacturer)</td></tr>
+            <tr><td class="label">Model</td><td class="value">$(HtmlEncode $Model)</td></tr>
+            <tr><td class="label">System Type</td><td class="value">$(HtmlEncode $SystemType)</td></tr>
+            <tr><td class="label">Processor</td><td class="value">$(HtmlEncode $Processor)</td></tr>
+            <tr><td class="label">CPU Cores / Logical Processors</td><td class="value">$(HtmlEncode $CpuCores) / $(HtmlEncode $CpuLogical)</td></tr>
+            <tr><td class="label">Memory (RAM)</td><td class="value">$(HtmlEncode "$RamGB GB") $(StatusHtml $RamStatus) &nbsp; Minimum: 8 GB</td></tr>
+            <tr><td class="label">Storage (C:)</td><td class="value">Total: $(HtmlEncode "$StorageTotalGB GB") &nbsp; | &nbsp; Free: $(HtmlEncode "$StorageFreeGB GB")</td></tr>
+            <tr><td class="label">BIOS Version</td><td class="value">$(HtmlEncode $BiosVersion)</td></tr>
+            <tr><td class="label">Baseboard</td><td class="value">$(HtmlEncode $BaseBoardModel)</td></tr>
         </table>
     </div>
 
     <div class="section">
         <div class="section-title">Operating System</div>
         <table>
-            <tr><td class="label">OS Edition</td><td class="value">$(H $OSCaption)</td></tr>
-            <tr><td class="label">OS Version</td><td class="value">$(H $OSVersion)</td></tr>
-            <tr><td class="label">Build Number</td><td class="value">$(H $OSBuild)</td></tr>
-            <tr><td class="label">Windows Installed</td><td class="value">$(H $OSInstallDate)</td></tr>
-            <tr><td class="label">Last Boot</td><td class="value">$(H $LastBoot)</td></tr>
-            <tr><td class="label">Latest Installed Update</td><td class="value">$(H $LastUpdate) &nbsp; $(H $LastUpdateId)</td></tr>
-            <tr><td class="label">Windows Update Service</td><td class="value">$(H $WindowsUpdateService)</td></tr>
+            <tr><td class="label">OS Edition</td><td class="value">$(HtmlEncode $OSCaption)</td></tr>
+            <tr><td class="label">OS Version</td><td class="value">$(HtmlEncode $OSVersion)</td></tr>
+            <tr><td class="label">Build Number</td><td class="value">$(HtmlEncode $OSBuild)</td></tr>
+            <tr><td class="label">Windows Installed</td><td class="value">$(HtmlEncode $OSInstallDate)</td></tr>
+            <tr><td class="label">Last Boot</td><td class="value">$(HtmlEncode $LastBoot)</td></tr>
+            <tr><td class="label">Latest Installed Update</td><td class="value">$(HtmlEncode $LastUpdate) &nbsp; $(HtmlEncode $LastUpdateId)</td></tr>
+            <tr><td class="label">Windows Update Service</td><td class="value">$(HtmlEncode $WindowsUpdateService)</td></tr>
         </table>
     </div>
 
     <div class="section">
         <div class="section-title">Security & Compliance</div>
         <table>
-            <tr><td class="label">Disk Encryption (BitLocker / Device Encryption)</td><td class="value">$(H $EncryptionDetail) $(StatusHtml $EncryptionStatus)</td></tr>
-            <tr><td class="label">Windows Firewall</td><td class="value">$(H $FirewallDetail) $(StatusHtml $FirewallStatus)</td></tr>
-            <tr><td class="label">Native Security / Real-Time Protection</td><td class="value">$(H $DefenderDetail) $(StatusHtml $DefenderStatus)</td></tr>
-            <tr><td class="label">Detected Antivirus Product(s)</td><td class="value">$(H $DetectedAV)</td></tr>
-            <tr><td class="label">Antivirus Definitions Updated</td><td class="value">$(H $DefenderDefinitions)</td></tr>
-            <tr><td class="label">Last Full Antivirus Scan</td><td class="value">$(H $DefenderLastFullScan)</td></tr>
-            <tr><td class="label">TPM</td><td class="value">$(H $TPMDetail) $(StatusHtml $TPMStatus)</td></tr>
-            <tr><td class="label">Secure Boot</td><td class="value">$(H $SecureBootDetail) $(StatusHtml $SecureBootStatus)</td></tr>
-            <tr><td class="label">Auto-Lock / Screen Security</td><td class="value">$(H $ScreenLockDetail) $(StatusHtml $ScreenLockStatus)</td></tr>
-            <tr><td class="label">Storage Sense</td><td class="value">$(H $StorageSense)</td></tr>
+            <tr><td class="label">Disk Encryption (BitLocker / Device Encryption)</td><td class="value">$(HtmlEncode $EncryptionDetail) $(StatusHtml $EncryptionStatus)</td></tr>
+            <tr><td class="label">Windows Firewall</td><td class="value">$(HtmlEncode $FirewallDetail) $(StatusHtml $FirewallStatus)</td></tr>
+            <tr><td class="label">Native Security / Real-Time Protection</td><td class="value">$(HtmlEncode $DefenderDetail) $(StatusHtml $DefenderStatus)</td></tr>
+            <tr><td class="label">Detected Antivirus Product(s)</td><td class="value">$(HtmlEncode $DetectedAV)</td></tr>
+            <tr><td class="label">Antivirus Definitions Updated</td><td class="value">$(HtmlEncode $DefenderDefinitions)</td></tr>
+            <tr><td class="label">Last Full Antivirus Scan</td><td class="value">$(HtmlEncode $DefenderLastFullScan)</td></tr>
+            <tr><td class="label">TPM</td><td class="value">$(HtmlEncode $TPMDetail) $(StatusHtml $TPMStatus)</td></tr>
+            <tr><td class="label">Secure Boot</td><td class="value">$(HtmlEncode $SecureBootDetail) $(StatusHtml $SecureBootStatus)</td></tr>
+            <tr><td class="label">Auto-Lock / Screen Security</td><td class="value">$(HtmlEncode $ScreenLockDetail) $(StatusHtml $ScreenLockStatus)</td></tr>
+            <tr><td class="label">Storage Sense</td><td class="value">$(HtmlEncode $StorageSense)</td></tr>
         </table>
     </div>
 
     <div class="section">
         <div class="section-title">Browser Information</div>
         <table>
-            <tr><td class="label">Google Chrome</td><td class="value">$(H $ChromeVersion)</td></tr>
-            <tr><td class="label">Microsoft Edge</td><td class="value">$(H $EdgeVersion)</td></tr>
-            <tr><td class="label">Mozilla Firefox</td><td class="value">$(H $FirefoxVersion)</td></tr>
+            <tr><td class="label">Google Chrome</td><td class="value">$(HtmlEncode $ChromeVersion)</td></tr>
+            <tr><td class="label">Microsoft Edge</td><td class="value">$(HtmlEncode $EdgeVersion)</td></tr>
+            <tr><td class="label">Mozilla Firefox</td><td class="value">$(HtmlEncode $FirefoxVersion)</td></tr>
             <tr><td class="label">Browser Profiles</td><td class="value">Not collected (privacy / data minimization)</td></tr>
         </table>
     </div>
@@ -785,11 +770,11 @@ $html = @"
     <div class="section">
         <div class="section-title">Network & Peripherals</div>
         <table>
-            <tr><td class="label">Active Network Adapter</td><td class="value">$(H $NetworkAdapter)</td></tr>
-            <tr><td class="label">Connection Type</td><td class="value">$(H $ConnectionType)</td></tr>
-            <tr><td class="label">Camera</td><td class="value">$(H $CameraStatus)</td></tr>
-            <tr><td class="label">Microphone</td><td class="value">$(H $MicrophoneStatus)</td></tr>
-            <tr><td class="label">Audio Device</td><td class="value">$(H $AudioStatus)</td></tr>
+            <tr><td class="label">Active Network Adapter</td><td class="value">$(HtmlEncode $NetworkAdapter)</td></tr>
+            <tr><td class="label">Connection Type</td><td class="value">$(HtmlEncode $ConnectionType)</td></tr>
+            <tr><td class="label">Camera</td><td class="value">$(HtmlEncode $CameraStatus)</td></tr>
+            <tr><td class="label">Microphone</td><td class="value">$(HtmlEncode $MicrophoneStatus)</td></tr>
+            <tr><td class="label">Audio Device</td><td class="value">$(HtmlEncode $AudioStatus)</td></tr>
         </table>
     </div>
 
@@ -806,7 +791,7 @@ $html = @"
 
     <div class="summary">
         <div class="summary-label">NextStep VA Internal Device Baseline</div>
-        <div class="summary-status $OverallClass">$(H $OverallStatus)</div>
+        <div class="summary-status $OverallClass">$(HtmlEncode $OverallStatus)</div>
     </div>
 
     <div class="privacy">
@@ -820,7 +805,7 @@ $html = @"
     <div class="footer">
         NextStep VA IT Department<br>
         Remote Workforce Device & Security Assessment<br>
-        Report file: $(H $ReportName)
+        Report file: $(HtmlEncode $ReportName)
     </div>
 
 </div>
