@@ -10,7 +10,7 @@ IMPORTANT:
 - Some checks require Administrator privileges for the most accurate result.
 #>
 
-$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "Continue"
 
 # ------------------------------------------------------------
 # BASIC HELPERS
@@ -490,6 +490,21 @@ $Timestamp = Get-Date -Format "yyyy-MM-dd_HHmm"
 $ReportName = "${SafeEmployeeID}_NextStepVA_Device_Compliance_${Timestamp}.html"
 $ReportPath = Join-Path $Downloads $ReportName
 
+
+# Production data safety refresh
+try {
+    $refreshCS = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+    if ([string]::IsNullOrWhiteSpace([string]$Manufacturer)) { $Manufacturer = $refreshCS.Manufacturer }
+    if ([string]::IsNullOrWhiteSpace([string]$Model)) { $Model = $refreshCS.Model }
+    if ([string]::IsNullOrWhiteSpace([string]$ComputerName)) { $ComputerName = $env:COMPUTERNAME }
+} catch {}
+try {
+    $refreshOS = Get-CimInstance Win32_OperatingSystem -ErrorAction Stop
+    if ([string]::IsNullOrWhiteSpace([string]$OSCaption)) { $OSCaption = $refreshOS.Caption }
+    if ([string]::IsNullOrWhiteSpace([string]$OSVersion)) { $OSVersion = $refreshOS.Version }
+    if ([string]::IsNullOrWhiteSpace([string]$OSBuild)) { $OSBuild = $refreshOS.BuildNumber }
+} catch {}
+
 # ------------------------------------------------------------
 # HTML REPORT
 # ------------------------------------------------------------
@@ -510,12 +525,12 @@ $html = @"
         --line: #d9e1ea;
         --text: #1b2430;
         --muted: #5f6b78;
-        --pass-bg: #e8f7ee;
-        --pass-fg: #176b37;
-        --fail-bg: #fdecec;
-        --fail-fg: #a12626;
-        --review-bg: #fff4d8;
-        --review-fg: #8a5a00;
+        --pass-bg: #dff7f5;
+        --pass-fg: #086b73;
+        --fail-bg: #eaf4ff;
+        --fail-fg: #183b7a;
+        --review-bg: #e6f7ff;
+        --review-fg: #1fa6da;
         --info-bg: #edf2f7;
         --info-fg: #425466;
     }
